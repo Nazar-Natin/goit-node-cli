@@ -1,7 +1,11 @@
-const nodemon = require("nodemon");
-const contactsFn = require("./contacts");
-const { Command } = require("commander");
-const program = new Command();
+import { program } from "commander";
+import {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+} from "./contacts.js";
+
 program
   .option("-a, --action <type>", "choose action")
   .option("-i, --id <type>", "user id")
@@ -9,26 +13,30 @@ program
   .option("-e, --email <type>", "user email")
   .option("-p, --phone <type>", "user phone");
 
-program.parse(process.argv);
+program.parse();
 
-const argv = program.opts();
+const options = program.opts();
 
-function invokeAction({ action, id, name, email, phone }) {
+async function invokeAction({ action, id, name, email, phone }) {
   switch (action) {
     case "list":
-      contactsFn.listContacts();
+      const contactsList = await listContacts();
+      console.table(contactsList);
       break;
 
     case "get":
-      contactsFn.getContactById(id);
+      const searchedContact = await getContactById(id);
+      console.log(searchedContact);
       break;
 
     case "add":
-      contactsFn.addContact(name, email, phone);
+      const addedContact = await addContact(name, email, phone);
+      console.log(addedContact);
       break;
 
     case "remove":
-      contactsFn.removeContact(id);
+      const removedContact = await removeContact(id);
+      console.log(removedContact);
       break;
 
     default:
@@ -36,4 +44,4 @@ function invokeAction({ action, id, name, email, phone }) {
   }
 }
 
-invokeAction(argv);
+invokeAction(options);
